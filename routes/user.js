@@ -1,23 +1,20 @@
 const express =require('express');
 const router = express.Router();
 const passport =require('passport');
-
-
-
-
+const User = require('../models/User');
 
 router.get('/',(req,res)=>{
     res.send('hello world');
 });
-// for register new user
+
 router.get('/auth/google/register',
-  passport.authenticate('google', { scope: ['profile'] }));
+  passport.authenticate('google', { scope: ['profile','email'] }));
 
 router.get('/auth/google/callback', 
   passport.authenticate('google', { failureRedirect: '/login' }),
   function(req, res) {
     // Successful authentication, redirect home.
-    res.redirect('/auth/admin/dashboard');
+    res.redirect('/');
   });
 
   router.get('/logout',  (req, res, next) => {
@@ -25,14 +22,68 @@ router.get('/auth/google/callback',
     res.redirect('/');
 });
 
+/*router.get('/admin', async (req,res)=>{
 
-function ensureAuthenticated(req, res, next) {
-  if (req.isAuthenticated() && req.user.isAdmin) {
+  //const {isAdmin}= req.body ;
+
+//const adminUser = await  User.findOne({ isadmin:req.body.isadmin});
+    const adminUser = await User.findOne({ email, isAdmin: true });
+    res.send(adminUser);
+
+console.log(adminUser);
+if(!adminUser){
+  return res.status(404).json({message :"user is not an Admin"});
+}
+
+
+const token = jwt.sign({_id :adminUser._id , isAdmin: adminUser.isAdmin},'jwtprivatekey');
+
+//res.send(token);
+res.status(201).json({user:adminUser,token:token});
+
+
+});
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+/*function ensureAuthenticated(req, res, next) {
+  if (req.user.isAdmin) {
   
     return next();
   }
   res.status(401).send('Unauthorized');
-}
+} */
   /*const isAdmin = (req, res, next) => {
     if (req.user.isAdmin) {
       return next();
@@ -42,11 +93,11 @@ function ensureAuthenticated(req, res, next) {
   };*/
 
 //for admin
-router.get('/auth/admin/dashboard', ensureAuthenticated, (req, res) => {
+/*router.get('/auth/admin/dashboard', ensureAuthenticated, (req, res) => {
   res.render('/auth/admin/dashboard', {
     user: req.user
   });
-});
+});*/
 
 /*
 //Define the Protected Route, by using the "checkAuthenticated" function defined above as middleware
