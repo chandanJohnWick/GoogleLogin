@@ -4,27 +4,30 @@ const router = express.Router();
 const jwt = require('jsonwebtoken');
 const {adminUser} = require('../models/adminModel');
 const mongoose =require ('mongoose');
+const auth = require('../middleware/auth');
+const adM=require('../middleware/adminmiddleware');
 
 router.use(express.json());
-router.post('/',async (req,res)=>{
+router.post('/', [auth,adM],async (req,res)=>{
 
    let  adminuser= await adminUser.findOne({email:req.body.email});
 
    console.log(adminuser);
-  if(!adminuser) return res.status(404).send('user is  admin ');
-
-  /*adminuser =new adminUser({
+  if(adminuser) return res.status(404).send('user is  registered ');
+//if not adminuser below code will exicute
+  adminuser =new adminUser({
    name :req.body.name,
    email: req.body.email,
    password:req.body.password,
-   isAdmin:req.body.isAdmin 
+   
   });
   await adminuser.save();
-  res.send(adminuser); 
-  */
+  
+   
+  
 
-  const token = jwt.sign({_id :adminuser._id},PRIVATE_KEY);
-  res.send(token) ;  
+  const token = adminuser.generateAuthToken();
+    res.send(token) ;  
 
 });
 
