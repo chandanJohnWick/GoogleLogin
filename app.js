@@ -7,7 +7,9 @@ const MongoStore = require('connect-mongo')(session);
 const userRoute =require('./routes/user');
 const adminRoute =require('./routes/admin');
 const passport = require('passport');
+const error = require('./middleware/error');
 require('./config/passport')(passport)
+
 
 const port = process.env.PORT || 4000;
 
@@ -32,6 +34,8 @@ app.use(passport.session());
 app.use('/',userRoute);
 
 app.use('/admin',adminRoute);
+
+app.use(error);
 
 app.listen(port,()=>{console.log(`listning  on port ${port}...`);
 });
